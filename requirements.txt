@@ -8,5 +8,6 @@ seaborn>=0.12
 tqdm>=4.65
 joblib>=1.3
 pyarrow>=12.0        # parquet 저장용
+torch>=2.0           # Autoencoder (DL clustering)
 jupyter>=1.0
 ipykernel>=6.0
