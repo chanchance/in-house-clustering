@@ -10,23 +10,23 @@ def compute_4sigma_range_pct(
     lower_pct: float = 0.00315,
     upper_pct: float = 99.99685,
 ) -> float:
-    """4σ range % — 클러스터 자체 median으로 정규화 (전체 median 위치로 이동 후 측정).
+    """4σ range % — 전체 median 기준으로 정규화.
 
-    OPC 레시피가 클러스터 평균 CD를 보정한다고 가정할 때,
-    보정 후 잔존하는 variation을 측정합니다.
+    각 클러스터의 median을 전체 데이터 median(ref_median)으로 이동시킨 후
+    4σ range를 측정하는 것과 수학적으로 동일합니다.
 
-    4σ range % = (P_upper(cd/median_cluster) - P_lower(cd/median_cluster)) × 100
+    이동(shift)은 range에 영향을 주지 않으므로:
+      range(arr - cluster_median + ref_median) == range(arr)
+    따라서:
+      4σ range % = (P_upper(arr) - P_lower(arr)) / ref_median × 100
+                 = (P_upper(arr/ref_median) - P_lower(arr/ref_median)) × 100
     """
     arr = np.asarray(cd_values, dtype=np.float64)
     if len(arr) < 2:
         return 0.0
-    cluster_median = float(np.median(arr))
-    if cluster_median == 0.0:
-        # fallback: use ref_median to avoid division by zero
-        cluster_median = ref_median
-    if cluster_median == 0.0:
+    if ref_median == 0.0:
         return 0.0
-    cd_norm = arr / cluster_median
+    cd_norm = arr / ref_median
     lower = np.percentile(cd_norm, lower_pct)
     upper = np.percentile(cd_norm, upper_pct)
     return (upper - lower) * 100.0
