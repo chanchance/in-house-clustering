@@ -11,7 +11,10 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import optuna
+try:
+    import optuna
+except ImportError:
+    from optimization.common import optuna_compat as optuna
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset

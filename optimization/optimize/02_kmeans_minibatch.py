@@ -10,7 +10,10 @@ import argparse
 import time
 from pathlib import Path
 
-import optuna
+try:
+    import optuna
+except ImportError:
+    from optimization.common import optuna_compat as optuna
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 

@@ -10,7 +10,10 @@ import time
 import sys
 from pathlib import Path
 
-import optuna
+try:
+    import optuna
+except ImportError:
+    from optimization.common import optuna_compat as optuna
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
