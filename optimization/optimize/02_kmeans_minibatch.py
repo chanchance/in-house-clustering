@@ -41,10 +41,13 @@ BEST_PATH = ROOT / "optimization" / "results" / "02_kmeans_minibatch_best.json"
 
 # ── Optuna objective ──────────────────────────────────────────────────────────
 
-def make_objective(X_sel, y, ref_median, cfg):
+def make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=None):
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
+    cost_mode                          = cfg.get("cost_mode", "combined")
+    lambda_penalty                     = cfg.get("lambda_penalty", 0.3)
+    max_cluster_4sigma_threshold_ratio = cfg.get("max_cluster_4sigma_threshold_ratio", 0.8)
 
     def objective(trial):
         from sklearn.cluster import MiniBatchKMeans
@@ -63,7 +66,13 @@ def make_objective(X_sel, y, ref_median, cfg):
         raw_labels = km.fit_predict(X_sel)
         merged = merge_small_clusters(raw_labels, X_sel, min_count)
         labels = relabel_sequential(merged)
-        cost = cost_function(labels, y, ref_median, min_count, lower_pct, upper_pct)
+        cost = cost_function(
+            labels, y, ref_median, min_count, lower_pct, upper_pct,
+            cost_mode=cost_mode,
+            lambda_penalty=lambda_penalty,
+            baseline_4sigma=baseline_4sigma,
+            max_cluster_4sigma_threshold_ratio=max_cluster_4sigma_threshold_ratio,
+        )
         elapsed = time.perf_counter() - t0
 
         n_actual = int(labels.max()) + 1
@@ -116,6 +125,7 @@ def main():
     print(f"  ref_median  : {ref_median:.4f}")
     print(f"  baseline 4σ : {baseline_4sigma:.4f}")
     print(f"  n_trials    : {n_trials}")
+    print(f"Cost mode: {cfg.get('cost_mode', 'combined')}")
     print()
 
     # 결과 디렉토리 보장
@@ -124,7 +134,7 @@ def main():
     # Optuna study
     study = optuna.create_study(direction="minimize")
     study.optimize(
-        make_objective(X_sel, y, ref_median, cfg),
+        make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma),
         n_trials=n_trials,
         show_progress_bar=False,
     )

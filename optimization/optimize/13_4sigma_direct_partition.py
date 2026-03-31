@@ -58,7 +58,9 @@ class FourSigmaPartition:
     """
 
     def __init__(self, X, y, ref_median, min_count,
-                 lower_pct, upper_pct, n_thresholds=20):
+                 lower_pct, upper_pct, n_thresholds=20,
+                 cost_mode="combined", lambda_penalty=0.3,
+                 baseline_4sigma=None, max_cluster_4sigma_threshold_ratio=0.8):
         self.X = X
         self.y = y
         self.ref_median = ref_median
@@ -66,6 +68,10 @@ class FourSigmaPartition:
         self.lower_pct = lower_pct
         self.upper_pct = upper_pct
         self.n_thresholds = n_thresholds
+        self.cost_mode = cost_mode
+        self.lambda_penalty = lambda_penalty
+        self.baseline_4sigma = baseline_4sigma
+        self.max_cluster_4sigma_threshold_ratio = max_cluster_4sigma_threshold_ratio
         self.n_features = X.shape[1]
 
     def _4sig(self, y_cl):
@@ -99,8 +105,13 @@ class FourSigmaPartition:
                 # Temporarily apply the split to compute cost
                 temp_labels = self._labels.copy()
                 temp_labels[mask] = np.where(left_mask_cl, cluster_id, next_id_tmp)
-                new_cost = compute_combined_4sigma_after_alignment(
-                    temp_labels, self.y, self.ref_median, self.lower_pct, self.upper_pct
+                new_cost = cost_function(
+                    temp_labels, self.y, self.ref_median,
+                    self.min_count, self.lower_pct, self.upper_pct,
+                    cost_mode=self.cost_mode,
+                    lambda_penalty=self.lambda_penalty,
+                    baseline_4sigma=self.baseline_4sigma,
+                    max_cluster_4sigma_threshold_ratio=self.max_cluster_4sigma_threshold_ratio,
                 )
 
                 if new_cost < best_cost:
@@ -118,8 +129,13 @@ class FourSigmaPartition:
         # Initialize cluster state
         self._cluster_counts = {0: n}
         four_sig_dict = {0: self._4sig(self.y)}
-        current_cost = compute_combined_4sigma_after_alignment(
-            self._labels, self.y, self.ref_median, self.lower_pct, self.upper_pct
+        current_cost = cost_function(
+            self._labels, self.y, self.ref_median,
+            self.min_count, self.lower_pct, self.upper_pct,
+            cost_mode=self.cost_mode,
+            lambda_penalty=self.lambda_penalty,
+            baseline_4sigma=self.baseline_4sigma,
+            max_cluster_4sigma_threshold_ratio=self.max_cluster_4sigma_threshold_ratio,
         )
 
         # Check min_count constraint
@@ -191,10 +207,13 @@ class FourSigmaPartition:
 # ---------------------------------------------------------------------------
 # Optuna objective factory
 # ---------------------------------------------------------------------------
-def make_objective(X_sel, y, ref_median, cfg):
+def make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=None):
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
+    cost_mode                          = cfg.get("cost_mode", "combined")
+    lambda_penalty                     = cfg.get("lambda_penalty", 0.3)
+    max_cluster_4sigma_threshold_ratio = cfg.get("max_cluster_4sigma_threshold_ratio", 0.8)
 
     def objective(trial):
         target_k             = trial.suggest_int("target_k", 5, 100)
@@ -208,11 +227,19 @@ def make_objective(X_sel, y, ref_median, cfg):
         partitioner = FourSigmaPartition(
             X_sel, y, ref_median, min_count,
             lower_pct, upper_pct, n_thresholds,
+            cost_mode=cost_mode,
+            lambda_penalty=lambda_penalty,
+            baseline_4sigma=baseline_4sigma,
+            max_cluster_4sigma_threshold_ratio=max_cluster_4sigma_threshold_ratio,
         )
         labels, history = partitioner.fit(target_k, min_split_improvement)
 
         cost = cost_function(
-            labels, y, ref_median, min_count, lower_pct, upper_pct
+            labels, y, ref_median, min_count, lower_pct, upper_pct,
+            cost_mode=cost_mode,
+            lambda_penalty=lambda_penalty,
+            baseline_4sigma=baseline_4sigma,
+            max_cluster_4sigma_threshold_ratio=max_cluster_4sigma_threshold_ratio,
         )
 
         duration   = time.perf_counter() - t0
@@ -282,6 +309,7 @@ def main():
     print(
         f"Fixed: min_count={cfg['min_count']}"
     )
+    print(f"Cost mode: {cfg.get('cost_mode', 'combined')}")
     print(f"Data shape: X={X_sel.shape}, y={y.shape}")
     print("-" * 70)
 
@@ -289,7 +317,7 @@ def main():
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(direction="minimize")
 
-    objective = make_objective(X_sel, y, ref_median, cfg)
+    objective = make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma)
     study.optimize(objective, n_trials=n_trials)
 
     # Best result — rerun to get labels and history
@@ -304,6 +332,10 @@ def main():
     partitioner = FourSigmaPartition(
         X_sel, y, ref_median, min_count,
         lower_pct, upper_pct, best_params["n_thresholds"],
+        cost_mode=cfg.get("cost_mode", "combined"),
+        lambda_penalty=cfg.get("lambda_penalty", 0.3),
+        baseline_4sigma=baseline_4sigma,
+        max_cluster_4sigma_threshold_ratio=cfg.get("max_cluster_4sigma_threshold_ratio", 0.8),
     )
     best_labels, best_history = partitioner.fit(
         best_params["target_k"], best_params["min_split_improvement"]

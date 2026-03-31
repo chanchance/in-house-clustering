@@ -122,10 +122,13 @@ def train_autoencoder(
 # ---------------------------------------------------------------------------
 # Trial objective
 # ---------------------------------------------------------------------------
-def make_objective(X_sel, y, ref_median, cfg):
+def make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=None):
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
+    cost_mode                          = cfg.get("cost_mode", "combined")
+    lambda_penalty                     = cfg.get("lambda_penalty", 0.3)
+    max_cluster_4sigma_threshold_ratio = cfg.get("max_cluster_4sigma_threshold_ratio", 0.8)
 
     input_dim = X_sel.shape[1]
     X_tensor = torch.tensor(X_sel, dtype=torch.float32)
@@ -151,7 +154,13 @@ def make_objective(X_sel, y, ref_median, cfg):
         merged = merge_small_clusters(raw_labels, z, min_count)
         labels = relabel_sequential(merged)
 
-        cost = cost_function(labels, y, ref_median, min_count, lower_pct, upper_pct)
+        cost = cost_function(
+            labels, y, ref_median, min_count, lower_pct, upper_pct,
+            cost_mode=cost_mode,
+            lambda_penalty=lambda_penalty,
+            baseline_4sigma=baseline_4sigma,
+            max_cluster_4sigma_threshold_ratio=max_cluster_4sigma_threshold_ratio,
+        )
 
         duration = time.perf_counter() - t0
         n_actual = int(labels.max()) + 1
@@ -217,13 +226,14 @@ def main():
         + (" [DRY RUN]" if args.dry_run else "")
     )
     print(f"Fixed: min_count={cfg['min_count']}")
+    print(f"Cost mode: {cfg.get('cost_mode', 'combined')}")
     print(f"Data shape: X={X_sel.shape}, y={y.shape}")
     print("-" * 70)
 
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(direction="minimize")
 
-    objective = make_objective(X_sel, y, ref_median, cfg)
+    objective = make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma)
     study.optimize(objective, n_trials=n_trials)
 
     # Best result — retrain to get final labels

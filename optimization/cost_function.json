@@ -1,5 +1,13 @@
 {
   "_comment": "고정 변수 — 최적화 대상 제외. 변경 시 preprocess.py 재실행 필요.",
+  "_cost_mode_options": {
+    "combined": "combined 4σ range after median alignment (default)",
+    "soft_penalty": "combined_4σ + lambda_penalty × weighted_mean(per_cluster_4σ%)",
+    "hard_constraint": "max(per_cluster_4σ%) > baseline×threshold_ratio 이면 inf, 아니면 combined_4σ"
+  },
+  "cost_mode": "combined",
+  "lambda_penalty": 0.3,
+  "max_cluster_4sigma_threshold_ratio": 0.8,
   "min_count": 100,
   "lower_pct": 0.00315,
   "upper_pct": 99.99685,
