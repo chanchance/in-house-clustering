@@ -1,0 +1,15 @@
+# Large binary / generated files
+optimization/preprocessed.pkl
+optimization/xgb_cd_model.pkl
+optimization/ae_best.pt
+optimization/results/*.jsonl
+output/xgb_cd_model.pkl
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.omc/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/

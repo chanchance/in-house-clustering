@@ -1,0 +1,13 @@
+{
+  "method": "dt_kmeans_twostage",
+  "best_cost": 136.91872472497766,
+  "best_params": {
+    "dt_max_depth": 4,
+    "sub_k": 8,
+    "min_samples_leaf": 228
+  },
+  "n_clusters": 81,
+  "baseline_4sigma": 168.91095550875897,
+  "baseline_cost": 253.36643326313845,
+  "improvement_pct": 45.9602
+}

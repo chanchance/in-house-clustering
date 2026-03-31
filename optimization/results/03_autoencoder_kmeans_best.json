@@ -1,0 +1,14 @@
+{
+  "method": "autoencoder_kmeans",
+  "best_cost": 132.55300539338418,
+  "best_params": {
+    "latent_dim": 8,
+    "n_clusters": 25,
+    "epochs": 100,
+    "lr": 0.0011810736844496987,
+    "dropout": 0.18283929428359685
+  },
+  "n_clusters": 25,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": 21.5249
+}

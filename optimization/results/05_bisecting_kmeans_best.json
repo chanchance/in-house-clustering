@@ -1,0 +1,12 @@
+{
+  "method": "bisecting_kmeans",
+  "best_cost": 126.88455469575379,
+  "best_params": {
+    "n_clusters": 82,
+    "n_init": 12,
+    "bisecting_strategy": "biggest_inertia"
+  },
+  "n_clusters": 82,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": 24.8808
+}

@@ -1,0 +1,14 @@
+{
+  "method": "vae_kmeans",
+  "best_cost": 121.38443693481818,
+  "best_params": {
+    "latent_dim": 32,
+    "n_clusters": 11,
+    "epochs": 50,
+    "lr": 0.000701814939624064,
+    "beta_kl": 1.318109547027239
+  },
+  "n_clusters": 11,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": 28.137
+}

@@ -1,0 +1,12 @@
+{
+  "method": "xgb_leaf_kmeans",
+  "best_cost": 159.7183034381348,
+  "best_params": {
+    "n_clusters": 60,
+    "svd_components": 40,
+    "n_init": 13
+  },
+  "n_clusters": 60,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": 36.9615
+}

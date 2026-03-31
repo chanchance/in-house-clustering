@@ -1,0 +1,10 @@
+{
+  "_comment": "고정 변수 — 최적화 대상 제외. 변경 시 preprocess.py 재실행 필요.",
+  "alpha": 1.0,
+  "beta": 0.5,
+  "min_count": 100,
+  "lower_pct": 0.00315,
+  "upper_pct": 99.99685,
+  "shap_top_k": 20,
+  "shap_sample_n": 10000
+}

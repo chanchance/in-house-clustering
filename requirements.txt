@@ -10,5 +10,6 @@ joblib>=1.3
 pyarrow>=12.0        # parquet 저장용
 torch>=2.0           # Autoencoder / VAE (DL clustering)
 hdbscan>=0.8.33      # HDBSCAN (sklearn 1.3 미만 환경 fallback)
+optuna>=3.0            # hyperparameter optimization
 jupyter>=1.0
 ipykernel>=6.0

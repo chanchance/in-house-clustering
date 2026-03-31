@@ -1,0 +1,13 @@
+{
+  "method": "hdbscan",
+  "best_cost": 182.32029220002624,
+  "best_params": {
+    "min_cluster_size": 159,
+    "min_samples": 39,
+    "cluster_selection_epsilon": 0.13647112556413749
+  },
+  "n_clusters": 5,
+  "n_noise": 22348,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": -7.9387
+}

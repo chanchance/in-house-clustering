@@ -1,0 +1,13 @@
+{
+  "method": "isolation_forest_kmeans",
+  "best_cost": 139.13356772218592,
+  "best_params": {
+    "n_clusters": 38,
+    "contamination": 0.05572630417171979,
+    "n_estimators": 100
+  },
+  "n_clusters": 39,
+  "n_outliers": 3620,
+  "baseline_4sigma": 168.91095550875897,
+  "improvement_pct": 17.629
+}
