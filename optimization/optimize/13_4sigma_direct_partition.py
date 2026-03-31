@@ -6,7 +6,7 @@ Hyperparameters: target_k, n_thresholds, min_split_improvement
 
 Method: Greedy recursive binary tree where the splitting criterion IS the cost function.
 At each step: find the cluster with highest 4σ range, then find the (feature, threshold)
-split that maximally reduces the global cost. Directly optimizes alpha*weighted_mean + beta*max.
+split that maximally reduces the global combined 4σ range after alignment.
 """
 
 import argparse
@@ -21,7 +21,7 @@ import optuna
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from optimization.common.cost import cost_function, compute_4sigma_range_pct
+from optimization.common.cost import cost_function, compute_4sigma_range_pct, compute_combined_4sigma_after_alignment
 from optimization.common.utils import (
     load_preprocessed,
     load_cost_config,
@@ -50,46 +50,34 @@ TREE_PATH = RESULTS_DIR / "13_4sigma_direct_partition_tree.json"
 class FourSigmaPartition:
     """Greedy recursive 4σ-minimizing binary partition.
 
-    Incremental cost update: only recompute 4σ for the two split children.
-    O(n_cluster × n_features × n_thresholds) per split step instead of O(n_total × ...).
+    Cost metric: combined 4σ range of all shifted clusters (compute_combined_4sigma_after_alignment).
+    Recomputes cost on the full array each split step — O(n) but fast (~1ms for 65k samples).
     """
 
-    def __init__(self, X, y, ref_median, alpha, beta, min_count,
+    def __init__(self, X, y, ref_median, min_count,
                  lower_pct, upper_pct, n_thresholds=20):
         self.X = X
         self.y = y
         self.ref_median = ref_median
-        self.alpha = alpha
-        self.beta = beta
         self.min_count = min_count
         self.lower_pct = lower_pct
         self.upper_pct = upper_pct
         self.n_thresholds = n_thresholds
         self.n_features = X.shape[1]
-        self.n_total = float(len(y))
 
     def _4sig(self, y_cl):
         return compute_4sigma_range_pct(y_cl, self.ref_median, self.lower_pct, self.upper_pct)
 
-    def _other_max(self, four_sig_dict, exclude_lbl):
-        """Max 4σ among all clusters except exclude_lbl."""
-        val = 0.0
-        for lbl, sig in four_sig_dict.items():
-            if lbl != exclude_lbl and sig > val:
-                val = sig
-        return val
-
-    def _find_best_split(self, cluster_id, four_sig_dict, sum_wt):
+    def _find_best_split(self, cluster_id, four_sig_dict):
         """Find best (feature, threshold) to split cluster_id.
-        Returns (feat_idx, threshold, new_cost, new_sum_wt) or (None,None,inf,sum_wt).
+        Returns (feat_idx, threshold, new_cost) or (None, None, inf).
         """
         mask = self._labels == cluster_id
         X_cl = self.X[mask]
-        y_cl = self.y[mask]
 
         best_cost = float("inf")
-        best_feat, best_thresh, best_sum = None, None, sum_wt
-        best_sig_L, best_sig_R = None, None
+        best_feat, best_thresh = None, None
+        next_id_tmp = int(self._labels.max()) + 1
 
         for feat_idx in range(self.n_features):
             vals = X_cl[:, feat_idx]
@@ -98,35 +86,26 @@ class FourSigmaPartition:
             )
 
             for thresh in thresholds:
-                left_mask = vals <= thresh
-                right_mask = ~left_mask
-                n_L, n_R = left_mask.sum(), right_mask.sum()
+                left_mask_cl = vals <= thresh
+                right_mask_cl = ~left_mask_cl
+                n_L, n_R = left_mask_cl.sum(), right_mask_cl.sum()
 
                 if n_L < self.min_count or n_R < self.min_count:
                     continue
 
-                sig_L = self._4sig(y_cl[left_mask])
-                sig_R = self._4sig(y_cl[right_mask])
-
-                # Incremental cost
-                sig_C = four_sig_dict[cluster_id]
-                cnt_C = self._cluster_counts[cluster_id]
-                new_sum = sum_wt - cnt_C * sig_C + n_L * sig_L + n_R * sig_R
-                other_max = self._other_max(four_sig_dict, cluster_id)
-                new_max = max(other_max, sig_L, sig_R)
-                new_cost = self.alpha * (new_sum / self.n_total) + self.beta * new_max
+                # Temporarily apply the split to compute cost
+                temp_labels = self._labels.copy()
+                temp_labels[mask] = np.where(left_mask_cl, cluster_id, next_id_tmp)
+                new_cost = compute_combined_4sigma_after_alignment(
+                    temp_labels, self.y, self.ref_median, self.lower_pct, self.upper_pct
+                )
 
                 if new_cost < best_cost:
                     best_cost = new_cost
                     best_feat = feat_idx
                     best_thresh = thresh
-                    best_sum = new_sum
-                    best_sig_L = sig_L
-                    best_sig_R = sig_R
-                    best_nL = n_L
-                    best_nR = n_R
 
-        return best_feat, best_thresh, best_cost, best_sum
+        return best_feat, best_thresh, best_cost
 
     def fit(self, target_k, min_split_improvement):
         """Grow the partition until target_k clusters or no improvement."""
@@ -136,8 +115,9 @@ class FourSigmaPartition:
         # Initialize cluster state
         self._cluster_counts = {0: n}
         four_sig_dict = {0: self._4sig(self.y)}
-        sum_wt = float(n) * four_sig_dict[0]
-        current_cost = self.alpha * (sum_wt / self.n_total) + self.beta * four_sig_dict[0]
+        current_cost = compute_combined_4sigma_after_alignment(
+            self._labels, self.y, self.ref_median, self.lower_pct, self.upper_pct
+        )
 
         # Check min_count constraint
         if n < self.min_count:
@@ -160,8 +140,8 @@ class FourSigmaPartition:
             found_split = False
 
             for candidate in sorted_clusters:
-                feat, thresh, split_cost, new_sum = self._find_best_split(
-                    candidate, four_sig_dict, sum_wt
+                feat, thresh, split_cost = self._find_best_split(
+                    candidate, four_sig_dict
                 )
                 if feat is None:
                     continue
@@ -179,14 +159,13 @@ class FourSigmaPartition:
 
                 self._labels[mask] = np.where(left_mask_cl, candidate, next_id)
 
-                # Update state
+                # Update tracking state
                 n_L = int(left_mask_cl.sum())
                 n_R = int((~left_mask_cl).sum())
                 self._cluster_counts[candidate] = n_L
                 self._cluster_counts[next_id] = n_R
                 four_sig_dict[candidate] = self._4sig(y_cl[left_mask_cl])
                 four_sig_dict[next_id] = self._4sig(y_cl[~left_mask_cl])
-                sum_wt = new_sum
                 current_cost = split_cost
 
                 n_clusters = int(self._labels.max()) + 1
@@ -210,8 +189,6 @@ class FourSigmaPartition:
 # Optuna objective factory
 # ---------------------------------------------------------------------------
 def make_objective(X_sel, y, ref_median, cfg):
-    alpha     = cfg["alpha"]
-    beta      = cfg["beta"]
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
@@ -226,13 +203,13 @@ def make_objective(X_sel, y, ref_median, cfg):
         t0 = time.perf_counter()
 
         partitioner = FourSigmaPartition(
-            X_sel, y, ref_median, alpha, beta, min_count,
+            X_sel, y, ref_median, min_count,
             lower_pct, upper_pct, n_thresholds,
         )
         labels, history = partitioner.fit(target_k, min_split_improvement)
 
         cost = cost_function(
-            labels, y, ref_median, alpha, beta, min_count, lower_pct, upper_pct
+            labels, y, ref_median, min_count, lower_pct, upper_pct
         )
 
         duration   = time.perf_counter() - t0
@@ -300,8 +277,7 @@ def main():
         + (" [DRY RUN]" if args.dry_run else "")
     )
     print(
-        f"Fixed: alpha={cfg['alpha']}, beta={cfg['beta']}, "
-        f"min_count={cfg['min_count']}"
+        f"Fixed: min_count={cfg['min_count']}"
     )
     print(f"Data shape: X={X_sel.shape}, y={y.shape}")
     print("-" * 70)
@@ -318,14 +294,12 @@ def main():
     best_params = best_trial.params
     best_cost   = best_trial.value
 
-    alpha     = cfg["alpha"]
-    beta      = cfg["beta"]
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
 
     partitioner = FourSigmaPartition(
-        X_sel, y, ref_median, alpha, beta, min_count,
+        X_sel, y, ref_median, min_count,
         lower_pct, upper_pct, best_params["n_thresholds"],
     )
     best_labels, best_history = partitioner.fit(
@@ -336,7 +310,7 @@ def main():
     # Improvement over baseline
     improvement_pct = None
     if baseline_4sigma is not None and baseline_4sigma > 0 and best_cost != float("inf"):
-        baseline_cost   = (cfg["alpha"] + cfg["beta"]) * baseline_4sigma
+        baseline_cost   = baseline_4sigma
         improvement_pct = round((baseline_cost - best_cost) / baseline_cost * 100, 4)
 
     # Save best result

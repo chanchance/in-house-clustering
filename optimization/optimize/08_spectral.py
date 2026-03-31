@@ -39,8 +39,6 @@ BEST_PATH = ROOT / "optimization" / "results" / "08_spectral_best.json"
 # ── Optuna objective ──────────────────────────────────────────────────────────
 
 def make_objective(X_sel, y, ref_median, cfg):
-    alpha     = cfg["alpha"]
-    beta      = cfg["beta"]
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
@@ -87,9 +85,7 @@ def make_objective(X_sel, y, ref_median, cfg):
         merged = merge_small_clusters(raw_labels, X_sel, min_count)
         labels = relabel_sequential(merged)
 
-        cost = cost_function(
-            labels, y, ref_median, alpha, beta, min_count, lower_pct, upper_pct
-        )
+        cost = cost_function(labels, y, ref_median, min_count, lower_pct, upper_pct)
         elapsed = time.perf_counter() - t0
 
         n_actual  = int(labels.max()) + 1
@@ -160,7 +156,7 @@ def main():
     best_cost   = best.value
     best_params = best.params
 
-    baseline_cost = (cfg["alpha"] + cfg["beta"]) * baseline_4sigma
+    baseline_cost = baseline_4sigma
     improvement_pct = (
         (baseline_cost - best_cost) / baseline_cost * 100.0
         if baseline_4sigma > 0

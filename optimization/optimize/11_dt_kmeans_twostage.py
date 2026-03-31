@@ -98,8 +98,6 @@ def run_twostage(X_sel, y, dt_max_depth, sub_k, min_samples_leaf, min_count):
 # Optuna objective factory
 # ---------------------------------------------------------------------------
 def make_objective(X_sel, y, ref_median, cfg):
-    alpha     = cfg["alpha"]
-    beta      = cfg["beta"]
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
@@ -115,9 +113,7 @@ def make_objective(X_sel, y, ref_median, cfg):
             X_sel, y, dt_max_depth, sub_k, min_samples_leaf, min_count
         )
 
-        cost = cost_function(
-            labels, y, ref_median, alpha, beta, min_count, lower_pct, upper_pct
-        )
+        cost = cost_function(labels, y, ref_median, min_count, lower_pct, upper_pct)
 
         duration = time.perf_counter() - t0
         n_clusters_actual = int(labels.max()) + 1
@@ -184,7 +180,7 @@ def main():
         f"\nStarting Optuna optimization: {n_trials} trials"
         + (" [DRY RUN]" if args.dry_run else "")
     )
-    print(f"Fixed: alpha={cfg['alpha']}, beta={cfg['beta']}, min_count={cfg['min_count']}")
+    print(f"Fixed: min_count={cfg['min_count']}")
     print(f"Data shape: X={X_sel.shape}, y={y.shape}")
     print("-" * 70)
 
@@ -214,7 +210,7 @@ def main():
     baseline_cost   = None
     improvement_pct = None
     if baseline_4sigma is not None and baseline_4sigma > 0 and best_cost != float("inf"):
-        baseline_cost   = (cfg["alpha"] + cfg["beta"]) * baseline_4sigma
+        baseline_cost   = baseline_4sigma
         improvement_pct = round((baseline_cost - best_cost) / baseline_cost * 100, 4)
 
     result = {

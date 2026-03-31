@@ -70,8 +70,6 @@ def compute_leaf_norm(xgb_model, X_scaled: np.ndarray) -> np.ndarray:
 # Trial objective
 # ---------------------------------------------------------------------------
 def make_objective(leaf_norm: np.ndarray, y: np.ndarray, ref_median: float, cfg: dict):
-    alpha     = cfg["alpha"]
-    beta      = cfg["beta"]
     min_count = cfg["min_count"]
     lower_pct = cfg["lower_pct"]
     upper_pct = cfg["upper_pct"]
@@ -108,9 +106,7 @@ def make_objective(leaf_norm: np.ndarray, y: np.ndarray, ref_median: float, cfg:
         merged = merge_small_clusters(raw_labels, X_emb, min_count)
         labels = relabel_sequential(merged)
 
-        cost = cost_function(
-            labels, y, ref_median, alpha, beta, min_count, lower_pct, upper_pct
-        )
+        cost = cost_function(labels, y, ref_median, min_count, lower_pct, upper_pct)
 
         duration          = time.perf_counter() - t0
         n_clusters_actual = int(labels.max()) + 1
@@ -193,7 +189,7 @@ def main():
         f"\nStarting Optuna optimization: {n_trials} trials"
         + (" [DRY RUN]" if args.dry_run else "")
     )
-    print(f"Fixed: alpha={cfg['alpha']}, beta={cfg['beta']}, min_count={cfg['min_count']}")
+    print(f"Fixed: min_count={cfg['min_count']}")
     print(f"Data shape: X_scaled={X_scaled.shape}, y={y.shape}")
     print("-" * 70)
 
@@ -234,7 +230,7 @@ def main():
     # Improvement over baseline
     improvement_pct = None
     if baseline_4sigma is not None and baseline_4sigma > 0 and best_cost != float("inf"):
-        baseline_cost   = (cfg["alpha"] + cfg["beta"]) * baseline_4sigma
+        baseline_cost   = baseline_4sigma
         improvement_pct = round((baseline_cost - best_cost) / baseline_cost * 100, 4)
 
     result = {
