@@ -9,6 +9,7 @@
   "lambda_penalty": 0.3,
   "max_cluster_4sigma_threshold_ratio": 0.8,
   "min_count": 100,
+  "optuna_n_jobs": 1,
   "lower_pct": 0.00315,
   "upper_pct": 99.99685,
   "shap_top_k": 20,

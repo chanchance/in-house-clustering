@@ -23,7 +23,7 @@ from sklearn.cluster import MiniBatchKMeans
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from optimization.common.cost import cost_function
+from optimization.common.cost import cost_function, compute_cluster_stats
 from optimization.common.utils import (
     load_preprocessed,
     load_cost_config,
@@ -108,6 +108,9 @@ def train_vae(
     beta_kl: float,
 ) -> np.ndarray:
     """Train β-VAE and return deterministic mu embeddings for all samples."""
+    torch.manual_seed(42)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(42)
     model = LayoutVAE(input_dim, latent_dim).to(DEVICE)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -251,8 +254,9 @@ def main():
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(direction="minimize")
 
+    n_jobs = cfg.get("optuna_n_jobs", 1)
     objective = make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma)
-    study.optimize(objective, n_trials=n_trials)
+    study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
 
     # Best result — retrain to get final labels
     best_trial  = study.best_trial
@@ -281,6 +285,10 @@ def main():
     best_labels  = relabel_sequential(merged)
     best_n_clusters = int(best_labels.max()) + 1
 
+    lower_pct = cfg["lower_pct"]
+    upper_pct = cfg["upper_pct"]
+    stats = compute_cluster_stats(best_labels, y, ref_median, lower_pct, upper_pct)
+
     improvement_pct = None
     if baseline_4sigma is not None and baseline_4sigma > 0 and best_cost != float("inf"):
         baseline_cost = baseline_4sigma
@@ -293,6 +301,13 @@ def main():
         "n_clusters":      best_n_clusters,
         "baseline_4sigma": baseline_4sigma,
         "improvement_pct": improvement_pct,
+        "cluster_stats": {
+            "combined_4sigma_pct": stats["combined_4sigma_pct"],
+            "weighted_mean_4spct": stats["weighted_mean_4spct"],
+            "max_4spct": stats["max_4spct"],
+            "median_per_cluster": {str(k): v for k, v in stats["median_per_cluster"].items()},
+            "cluster_counts": {str(k): v for k, v in stats["cluster_counts"].items()},
+        },
     }
     save_best_result(str(BEST_PATH), result)
 

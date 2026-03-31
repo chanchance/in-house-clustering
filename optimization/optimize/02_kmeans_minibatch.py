@@ -22,7 +22,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from optimization.common.cost import cost_function
+from optimization.common.cost import cost_function, compute_cluster_stats
 from optimization.common.utils import (
     append_trial_log,
     load_cost_config,
@@ -132,11 +132,13 @@ def main():
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     # Optuna study
+    n_jobs = cfg.get("optuna_n_jobs", 1)
     study = optuna.create_study(direction="minimize")
     study.optimize(
         make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma),
         n_trials=n_trials,
         show_progress_bar=False,
+        n_jobs=n_jobs,
     )
 
     best = study.best_trial
@@ -150,6 +152,23 @@ def main():
         else 0.0
     )
 
+    # Recompute best_labels for cluster_stats
+    from sklearn.cluster import MiniBatchKMeans as _MBK
+    _km = _MBK(
+        n_clusters=best_params["n_clusters"],
+        batch_size=best_params["batch_size"],
+        n_init=best_params["n_init"],
+        random_state=42,
+    )
+    _raw = _km.fit_predict(X_sel)
+    _merged = merge_small_clusters(_raw, X_sel, cfg["min_count"])
+    best_labels = relabel_sequential(_merged)
+
+    # Cluster statistics for best result
+    lower_pct = cfg["lower_pct"]
+    upper_pct = cfg["upper_pct"]
+    stats = compute_cluster_stats(best_labels, y, ref_median, lower_pct, upper_pct)
+
     result = {
         "method": "MiniBatchKMeans",
         "best_cost": best_cost,
@@ -157,6 +176,13 @@ def main():
         "n_clusters": best_params["n_clusters"],
         "baseline_4sigma": baseline_4sigma,
         "improvement_pct": round(improvement_pct, 4),
+        "cluster_stats": {
+            "combined_4sigma_pct": stats["combined_4sigma_pct"],
+            "weighted_mean_4spct": stats["weighted_mean_4spct"],
+            "max_4spct": stats["max_4spct"],
+            "median_per_cluster": {str(k): v for k, v in stats["median_per_cluster"].items()},
+            "cluster_counts": {str(k): v for k, v in stats["cluster_counts"].items()},
+        },
     }
 
     save_best_result(BEST_PATH, result)

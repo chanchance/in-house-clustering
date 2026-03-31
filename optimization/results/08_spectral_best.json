@@ -1,12 +1,12 @@
 {
   "method": "SpectralClustering",
-  "best_cost": 91.75860293536189,
+  "best_cost": 80.86924015916172,
   "best_params": {
-    "n_clusters": 36,
-    "gamma": 0.05354044794108927,
+    "n_clusters": 42,
+    "gamma": 0.0061913209538178166,
     "subsample_n": 8000
   },
-  "n_clusters": 36,
+  "n_clusters": 42,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 45.6763
+  "improvement_pct": 52.1232
 }

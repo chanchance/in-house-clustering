@@ -24,7 +24,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from optimization.common.cost import cost_function, compute_4sigma_range_pct, compute_combined_4sigma_after_alignment
+from optimization.common.cost import cost_function, compute_4sigma_range_pct, compute_combined_4sigma_after_alignment, compute_cluster_stats
 from optimization.common.utils import (
     load_preprocessed,
     load_cost_config,
@@ -79,14 +79,27 @@ class FourSigmaPartition:
 
     def _find_best_split(self, cluster_id, four_sig_dict):
         """Find best (feature, threshold) to split cluster_id.
-        Returns (feat_idx, threshold, new_cost) or (None, None, inf).
+        Uses incremental cost computation — no full labels copy per candidate.
         """
         mask = self._labels == cluster_id
         X_cl = self.X[mask]
+        y_cl = self.y[mask]
+
+        # Precompute shifted parts for all OTHER clusters (done once per call)
+        other_parts: list[np.ndarray] = []
+        other_4sig_weighted: list[tuple[float, int]] = []  # (4σ, count) for soft/hard modes
+        for lbl in np.unique(self._labels):
+            if lbl == cluster_id:
+                continue
+            y_lbl = self.y[self._labels == lbl]
+            cl_med = float(np.median(y_lbl))
+            other_parts.append(y_lbl - cl_med + self.ref_median)
+            if self.cost_mode != "combined":
+                sig = compute_4sigma_range_pct(y_lbl, self.ref_median, self.lower_pct, self.upper_pct)
+                other_4sig_weighted.append((sig, len(y_lbl)))
 
         best_cost = float("inf")
         best_feat, best_thresh = None, None
-        next_id_tmp = int(self._labels.max()) + 1
 
         for feat_idx in range(self.n_features):
             vals = X_cl[:, feat_idx]
@@ -97,22 +110,52 @@ class FourSigmaPartition:
             for thresh in thresholds:
                 left_mask_cl = vals <= thresh
                 right_mask_cl = ~left_mask_cl
-                n_L, n_R = left_mask_cl.sum(), right_mask_cl.sum()
+                n_L = int(left_mask_cl.sum())
+                n_R = int(right_mask_cl.sum())
 
                 if n_L < self.min_count or n_R < self.min_count:
                     continue
 
-                # Temporarily apply the split to compute cost
-                temp_labels = self._labels.copy()
-                temp_labels[mask] = np.where(left_mask_cl, cluster_id, next_id_tmp)
-                new_cost = cost_function(
-                    temp_labels, self.y, self.ref_median,
-                    self.min_count, self.lower_pct, self.upper_pct,
-                    cost_mode=self.cost_mode,
-                    lambda_penalty=self.lambda_penalty,
-                    baseline_4sigma=self.baseline_4sigma,
-                    max_cluster_4sigma_threshold_ratio=self.max_cluster_4sigma_threshold_ratio,
+                y_L = y_cl[left_mask_cl]
+                y_R = y_cl[right_mask_cl]
+                med_L = float(np.median(y_L))
+                med_R = float(np.median(y_R))
+
+                # Build combined shifted distribution incrementally
+                parts = other_parts + [
+                    y_L - med_L + self.ref_median,
+                    y_R - med_R + self.ref_median,
+                ]
+                combined = np.concatenate(parts)
+                cd_norm = combined / self.ref_median
+                new_combined = float(
+                    (np.percentile(cd_norm, self.upper_pct) - np.percentile(cd_norm, self.lower_pct)) * 100.0
                 )
+
+                # Compute final cost based on mode
+                if self.cost_mode == "combined":
+                    new_cost = new_combined
+
+                elif self.cost_mode == "soft_penalty":
+                    sig_L = compute_4sigma_range_pct(y_L, self.ref_median, self.lower_pct, self.upper_pct)
+                    sig_R = compute_4sigma_range_pct(y_R, self.ref_median, self.lower_pct, self.upper_pct)
+                    all_sig = other_4sig_weighted + [(sig_L, n_L), (sig_R, n_R)]
+                    total_n = sum(c for _, c in all_sig)
+                    w_mean = sum(s * c for s, c in all_sig) / total_n if total_n > 0 else 0.0
+                    new_cost = new_combined + self.lambda_penalty * w_mean
+
+                elif self.cost_mode == "hard_constraint":
+                    if self.baseline_4sigma is not None:
+                        sig_L = compute_4sigma_range_pct(y_L, self.ref_median, self.lower_pct, self.upper_pct)
+                        sig_R = compute_4sigma_range_pct(y_R, self.ref_median, self.lower_pct, self.upper_pct)
+                        all_sigs = [s for s, _ in other_4sig_weighted] + [sig_L, sig_R]
+                        max_sig = max(all_sigs) if all_sigs else 0.0
+                        threshold = self.baseline_4sigma * self.max_cluster_4sigma_threshold_ratio
+                        new_cost = float("inf") if max_sig > threshold else new_combined
+                    else:
+                        new_cost = new_combined
+                else:
+                    new_cost = new_combined
 
                 if new_cost < best_cost:
                     best_cost = new_cost
@@ -318,7 +361,8 @@ def main():
     study = optuna.create_study(direction="minimize")
 
     objective = make_objective(X_sel, y, ref_median, cfg, baseline_4sigma=baseline_4sigma)
-    study.optimize(objective, n_trials=n_trials)
+    n_jobs = cfg.get("optuna_n_jobs", 1)
+    study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
 
     # Best result — rerun to get labels and history
     best_trial  = study.best_trial
@@ -342,6 +386,10 @@ def main():
     )
     best_n_clusters = int(best_labels.max()) + 1
 
+    lower_pct = cfg["lower_pct"]
+    upper_pct = cfg["upper_pct"]
+    stats = compute_cluster_stats(best_labels, y, ref_median, lower_pct, upper_pct)
+
     # Improvement over baseline
     improvement_pct = None
     if baseline_4sigma is not None and baseline_4sigma > 0 and best_cost != float("inf"):
@@ -356,6 +404,13 @@ def main():
         "n_clusters": best_n_clusters,
         "baseline_4sigma": baseline_4sigma,
         "improvement_pct": improvement_pct,
+        "cluster_stats": {
+            "combined_4sigma_pct": stats["combined_4sigma_pct"],
+            "weighted_mean_4spct": stats["weighted_mean_4spct"],
+            "max_4spct": stats["max_4spct"],
+            "median_per_cluster": {str(k): v for k, v in stats["median_per_cluster"].items()},
+            "cluster_counts": {str(k): v for k, v in stats["cluster_counts"].items()},
+        },
     }
     save_best_result(str(BEST_PATH), result)
 

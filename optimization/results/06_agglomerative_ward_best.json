@@ -1,11 +1,11 @@
 {
   "method": "AgglomerativeWard",
-  "best_cost": 89.18886131720757,
+  "best_cost": 81.22748935913705,
   "best_params": {
-    "n_clusters": 59,
-    "subsample_n": 10000
+    "n_clusters": 28,
+    "subsample_n": 20000
   },
-  "n_clusters": 59,
+  "n_clusters": 28,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 47.1977
+  "improvement_pct": 51.9111
 }

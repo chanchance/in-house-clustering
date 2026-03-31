@@ -14,7 +14,8 @@ import numpy as np
 def merge_small_clusters(labels: np.ndarray, X: np.ndarray, min_count: int) -> np.ndarray:
     """min_count 미만 클러스터를 centroid 거리 기준 가장 가까운 클러스터에 반복 병합."""
     labels = labels.copy()
-    for _ in range(1000):
+    max_iters = len(np.unique(labels)) + 1
+    for _ in range(max_iters):
         counter = Counter(labels.tolist())
         small = sorted(
             [l for l, c in counter.items() if c < min_count],

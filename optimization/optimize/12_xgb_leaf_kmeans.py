@@ -28,7 +28,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from optimization.common.cost import cost_function
+from optimization.common.cost import cost_function, compute_cluster_stats
 from optimization.common.utils import (
     load_preprocessed,
     load_cost_config,
@@ -211,8 +211,9 @@ def main():
     # ------------------------------------------------------------------
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study     = optuna.create_study(direction="minimize")
+    n_jobs = cfg.get("optuna_n_jobs", 1)
     objective = make_objective(leaf_norm, y, ref_median, cfg, baseline_4sigma=baseline_4sigma)
-    study.optimize(objective, n_trials=n_trials)
+    study.optimize(objective, n_trials=n_trials, n_jobs=n_jobs)
 
     # ------------------------------------------------------------------
     # Recompute best result for final summary
@@ -246,6 +247,11 @@ def main():
         baseline_cost   = baseline_4sigma
         improvement_pct = round((baseline_cost - best_cost) / baseline_cost * 100, 4)
 
+    # Cluster statistics for best result
+    lower_pct = cfg["lower_pct"]
+    upper_pct = cfg["upper_pct"]
+    stats = compute_cluster_stats(best_labels, y, ref_median, lower_pct, upper_pct)
+
     result = {
         "method":          "xgb_leaf_kmeans",
         "best_cost":       best_cost if best_cost != float("inf") else None,
@@ -253,6 +259,13 @@ def main():
         "n_clusters":      best_n_clusters,
         "baseline_4sigma": baseline_4sigma,
         "improvement_pct": improvement_pct,
+        "cluster_stats": {
+            "combined_4sigma_pct": stats["combined_4sigma_pct"],
+            "weighted_mean_4spct": stats["weighted_mean_4spct"],
+            "max_4spct": stats["max_4spct"],
+            "median_per_cluster": {str(k): v for k, v in stats["median_per_cluster"].items()},
+            "cluster_counts": {str(k): v for k, v in stats["cluster_counts"].items()},
+        },
     }
     save_best_result(str(BEST_PATH), result)
 

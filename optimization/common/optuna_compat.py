@@ -79,8 +79,9 @@ class FrozenTrial:
 # Study
 # ---------------------------------------------------------------------------
 class Study:
-    def __init__(self, direction: str = "minimize") -> None:
+    def __init__(self, direction: str = "minimize", seed: int = 42) -> None:
         self._direction = direction
+        self._seed = seed
         self.trials: list[FrozenTrial] = []
         self.best_trial: FrozenTrial | None = None
         self._best_value = float("inf") if direction == "minimize" else float("-inf")
@@ -92,8 +93,8 @@ class Study:
             return value < self._best_value
         return value > self._best_value
 
-    def optimize(self, objective, n_trials: int) -> None:
-        rng = np.random.default_rng(42)
+    def optimize(self, objective, n_trials: int, n_jobs: int = 1, **kwargs) -> None:
+        rng = np.random.default_rng(self._seed)
         for i in range(n_trials):
             trial = Trial(rng, i)
             try:
@@ -113,5 +114,5 @@ class Study:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def create_study(direction: str = "minimize", **kwargs) -> Study:
-    return Study(direction=direction)
+def create_study(direction: str = "minimize", seed: int = 42, **kwargs) -> Study:
+    return Study(direction=direction, seed=seed)

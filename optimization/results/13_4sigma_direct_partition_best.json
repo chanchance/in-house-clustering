@@ -1,12 +1,12 @@
 {
   "method": "4sigma_direct_partition",
-  "best_cost": 124.21857077907347,
+  "best_cost": 151.7340961167736,
   "best_params": {
-    "target_k": 71,
-    "n_thresholds": 50,
-    "min_split_improvement": 0.003358323210271396
+    "target_k": 40,
+    "n_thresholds": 10,
+    "min_split_improvement": 0.00019446704558670255
   },
-  "n_clusters": 71,
+  "n_clusters": 33,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 50.9728
+  "improvement_pct": 10.1692
 }

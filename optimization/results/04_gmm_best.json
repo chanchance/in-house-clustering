@@ -1,12 +1,12 @@
 {
   "method": "gmm",
-  "best_cost": 87.51952845437847,
+  "best_cost": 77.52084537198469,
   "best_params": {
-    "n_components": 72,
-    "covariance_type": "full",
-    "max_iter": 300
+    "n_components": 59,
+    "covariance_type": "tied",
+    "max_iter": 200
   },
-  "n_clusters": 72,
+  "n_clusters": 59,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 48.186
+  "improvement_pct": 54.1055
 }

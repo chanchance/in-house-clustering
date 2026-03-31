@@ -2,491 +2,225 @@
   {
     "step": 1,
     "n_clusters": 2,
-    "cost": 230.48996921057386,
-    "split_feature": "feat_032",
-    "split_threshold": -0.7274650248945973
+    "cost": 165.0311181642191,
+    "split_feature": "feat_023",
+    "split_threshold": -0.5382120907306671
   },
   {
     "step": 2,
     "n_clusters": 3,
-    "cost": 216.84541133003228,
-    "split_feature": "feat_084",
-    "split_threshold": 0.0
+    "cost": 160.71995185452968,
+    "split_feature": "feat_008",
+    "split_threshold": -0.04925294332206251
   },
   {
     "step": 3,
     "n_clusters": 4,
-    "cost": 206.08154591604549,
-    "split_feature": "feat_023",
-    "split_threshold": -0.7418622909759988
+    "cost": 159.84452224916183,
+    "split_feature": "feat_084",
+    "split_threshold": -2.397859501838684
   },
   {
     "step": 4,
     "n_clusters": 5,
-    "cost": 201.60868623118824,
-    "split_feature": "feat_084",
-    "split_threshold": -2.0866568324517227
+    "cost": 159.56369856826035,
+    "split_feature": "feat_008",
+    "split_threshold": 0.8745439648628235
   },
   {
     "step": 5,
     "n_clusters": 6,
-    "cost": 194.95674486874225,
-    "split_feature": "feat_021",
-    "split_threshold": 0.7534618399581131
+    "cost": 159.3163368434705,
+    "split_feature": "feat_020",
+    "split_threshold": 1.3106628894805905
   },
   {
     "step": 6,
     "n_clusters": 7,
-    "cost": 190.39615109760177,
-    "split_feature": "feat_089",
-    "split_threshold": 0.1639668098517826
+    "cost": 159.1248589609467,
+    "split_feature": "feat_097",
+    "split_threshold": 0.6996408939361572
   },
   {
     "step": 7,
     "n_clusters": 8,
-    "cost": 187.7908129951232,
-    "split_feature": "feat_029",
-    "split_threshold": 0.3118384592995352
+    "cost": 158.88581054865324,
+    "split_feature": "feat_008",
+    "split_threshold": 0.5181725770235062
   },
   {
     "step": 8,
     "n_clusters": 9,
-    "cost": 185.0886472531958,
-    "split_feature": "feat_042",
-    "split_threshold": 0.8963502977575575
+    "cost": 158.79655059144042,
+    "split_feature": "feat_084",
+    "split_threshold": -2.179045855998993
   },
   {
     "step": 9,
     "n_clusters": 10,
-    "cost": 180.1639881273598,
-    "split_feature": "feat_020",
-    "split_threshold": -0.649400206427185
+    "cost": 158.30408597099677,
+    "split_feature": "feat_016",
+    "split_threshold": 1.5463389158248901
   },
   {
     "step": 10,
     "n_clusters": 11,
-    "cost": 176.32999979209887,
-    "split_feature": "feat_042",
-    "split_threshold": -0.028405698959012193
+    "cost": 158.25311495600195,
+    "split_feature": "feat_020",
+    "split_threshold": -1.3925831079483033
   },
   {
     "step": 11,
     "n_clusters": 12,
-    "cost": 175.48527514576028,
-    "split_feature": "feat_087",
-    "split_threshold": 1.6611392467605823
+    "cost": 157.86915441494492,
+    "split_feature": "feat_016",
+    "split_threshold": 0.2067023143172264
   },
   {
     "step": 12,
     "n_clusters": 13,
-    "cost": 174.68653282976527,
+    "cost": 157.85145129985966,
     "split_feature": "feat_016",
-    "split_threshold": 0.5017233487294646
+    "split_threshold": -0.9987953066825866
   },
   {
     "step": 13,
     "n_clusters": 14,
-    "cost": 173.67293836915164,
-    "split_feature": "feat_060",
-    "split_threshold": 0.2796425211186312
+    "cost": 157.78023407601034,
+    "split_feature": "feat_020",
+    "split_threshold": -1.1692554354667664
   },
   {
     "step": 14,
     "n_clusters": 15,
-    "cost": 173.23826339746705,
-    "split_feature": "feat_089",
-    "split_threshold": 0.22256719147672377
+    "cost": 157.77183685105442,
+    "split_feature": "feat_042",
+    "split_threshold": 1.1898193836212159
   },
   {
     "step": 15,
     "n_clusters": 16,
-    "cost": 172.79993862288546,
-    "split_feature": "feat_016",
-    "split_threshold": 0.966465373063574
+    "cost": 157.42401566458224,
+    "split_feature": "feat_042",
+    "split_threshold": -0.5833941698074341
   },
   {
     "step": 16,
     "n_clusters": 17,
-    "cost": 172.65326458353667,
-    "split_feature": "feat_060",
-    "split_threshold": 0.4165584621380787
+    "cost": 157.18099508603396,
+    "split_feature": "feat_021",
+    "split_threshold": -0.3771296590566635
   },
   {
     "step": 17,
     "n_clusters": 18,
-    "cost": 172.1283803718582,
-    "split_feature": "feat_123",
-    "split_threshold": 0.41403078692299977
+    "cost": 157.16129933173735,
+    "split_feature": "feat_029",
+    "split_threshold": -0.08367347083985814
   },
   {
     "step": 18,
     "n_clusters": 19,
-    "cost": 172.0688744640783,
-    "split_feature": "feat_042",
-    "split_threshold": 0.27119953793530555
+    "cost": 154.26648097183525,
+    "split_feature": "feat_021",
+    "split_threshold": -0.5149013757705688
   },
   {
     "step": 19,
     "n_clusters": 20,
-    "cost": 170.08083291052122,
-    "split_feature": "feat_084",
-    "split_threshold": -1.0428195415710915
+    "cost": 153.64959816729768,
+    "split_feature": "feat_032",
+    "split_threshold": -0.04045228287577629
   },
   {
     "step": 20,
     "n_clusters": 21,
-    "cost": 169.87713025704036,
-    "split_feature": "feat_016",
-    "split_threshold": 0.7886816617785668
+    "cost": 153.45016145695166,
+    "split_feature": "feat_097",
+    "split_threshold": 0.37952321767807007
   },
   {
     "step": 21,
     "n_clusters": 22,
-    "cost": 160.6200501810544,
-    "split_feature": "feat_089",
-    "split_threshold": -0.04706484638154485
+    "cost": 153.23220919301116,
+    "split_feature": "feat_042",
+    "split_threshold": -0.34795283377170555
   },
   {
     "step": 22,
     "n_clusters": 23,
-    "cost": 158.36093479895703,
-    "split_feature": "feat_078",
-    "split_threshold": -0.6641128074149695
+    "cost": 152.77308720952746,
+    "split_feature": "feat_008",
+    "split_threshold": 0.13890773057937622
   },
   {
     "step": 23,
     "n_clusters": 24,
-    "cost": 156.96816556683137,
-    "split_feature": "feat_027",
-    "split_threshold": 0.47892636820978046
+    "cost": 152.76696666169707,
+    "split_feature": "feat_042",
+    "split_threshold": -0.10781066752970221
   },
   {
     "step": 24,
     "n_clusters": 25,
-    "cost": 156.16053202568412,
-    "split_feature": "feat_123",
-    "split_threshold": -0.2669335984453863
+    "cost": 152.76203813408895,
+    "split_feature": "feat_029",
+    "split_threshold": -1.4392399072647095
   },
   {
     "step": 25,
     "n_clusters": 26,
-    "cost": 155.71614230139966,
-    "split_feature": "feat_020",
-    "split_threshold": 0.392479239434612
+    "cost": 152.38909543988578,
+    "split_feature": "feat_060",
+    "split_threshold": -0.684959876537323
   },
   {
     "step": 26,
     "n_clusters": 27,
-    "cost": 155.51665271027844,
-    "split_feature": "feat_021",
-    "split_threshold": -0.1748444828147791
+    "cost": 152.37444189326837,
+    "split_feature": "feat_042",
+    "split_threshold": -0.9663841724395752
   },
   {
     "step": 27,
     "n_clusters": 28,
-    "cost": 155.3903760235855,
-    "split_feature": "feat_016",
-    "split_threshold": 1.1090456673077176
+    "cost": 152.3729612225642,
+    "split_feature": "feat_027",
+    "split_threshold": 0.2652890563011168
   },
   {
     "step": 28,
     "n_clusters": 29,
-    "cost": 154.8652180815597,
+    "cost": 152.3725502687293,
     "split_feature": "feat_060",
-    "split_threshold": 0.03215267329039623
+    "split_threshold": -0.4079273194074631
   },
   {
     "step": 29,
     "n_clusters": 30,
-    "cost": 154.7455593472049,
+    "cost": 152.36920326171565,
     "split_feature": "feat_097",
-    "split_threshold": 0.07820853666991609
+    "split_threshold": 0.6732068717479706
   },
   {
     "step": 30,
     "n_clusters": 31,
-    "cost": 154.4590671443616,
-    "split_feature": "feat_027",
-    "split_threshold": 0.12837650892989977
+    "cost": 151.8797295245117,
+    "split_feature": "feat_032",
+    "split_threshold": 0.13530315458774567
   },
   {
     "step": 31,
     "n_clusters": 32,
-    "cost": 154.42548075565492,
-    "split_feature": "feat_062",
-    "split_threshold": 0.0
+    "cost": 151.7343332307175,
+    "split_feature": "feat_042",
+    "split_threshold": 1.1299954533576966
   },
   {
     "step": 32,
     "n_clusters": 33,
-    "cost": 151.90426519559426,
-    "split_feature": "feat_089",
-    "split_threshold": -0.09289393446275161
-  },
-  {
-    "step": 33,
-    "n_clusters": 34,
-    "cost": 151.08972939626534,
-    "split_feature": "feat_020",
-    "split_threshold": 0.12851916226197263
-  },
-  {
-    "step": 34,
-    "n_clusters": 35,
-    "cost": 150.93241918361073,
-    "split_feature": "feat_021",
-    "split_threshold": -0.00517779999241542
-  },
-  {
-    "step": 35,
-    "n_clusters": 36,
-    "cost": 149.227639298208,
-    "split_feature": "feat_027",
-    "split_threshold": -0.17482508717446998
-  },
-  {
-    "step": 36,
-    "n_clusters": 37,
-    "cost": 148.3525025307481,
-    "split_feature": "feat_097",
-    "split_threshold": -0.06301499778518856
-  },
-  {
-    "step": 37,
-    "n_clusters": 38,
-    "cost": 146.58760928792015,
-    "split_feature": "feat_027",
-    "split_threshold": 0.6630378044381434
-  },
-  {
-    "step": 38,
-    "n_clusters": 39,
-    "cost": 146.41368053940624,
-    "split_feature": "feat_065",
-    "split_threshold": -0.6221055969900015
-  },
-  {
-    "step": 39,
-    "n_clusters": 40,
-    "cost": 146.18074844776595,
-    "split_feature": "feat_025",
-    "split_threshold": 0.4296073314182613
-  },
-  {
-    "step": 40,
-    "n_clusters": 41,
-    "cost": 145.38838049110802,
-    "split_feature": "feat_060",
-    "split_threshold": -0.10148304180071063
-  },
-  {
-    "step": 41,
-    "n_clusters": 42,
-    "cost": 145.00563807911075,
-    "split_feature": "feat_060",
-    "split_threshold": 0.06302181965842522
-  },
-  {
-    "step": 42,
-    "n_clusters": 43,
-    "cost": 144.81382198589222,
-    "split_feature": "feat_021",
-    "split_threshold": -0.03169289215334822
-  },
-  {
-    "step": 43,
-    "n_clusters": 44,
-    "cost": 144.74144596327858,
-    "split_feature": "feat_065",
-    "split_threshold": -0.543894829798718
-  },
-  {
-    "step": 44,
-    "n_clusters": 45,
-    "cost": 142.11645434418892,
-    "split_feature": "feat_060",
-    "split_threshold": -0.2584023741739137
-  },
-  {
-    "step": 45,
-    "n_clusters": 46,
-    "cost": 141.0201052517956,
-    "split_feature": "feat_064",
-    "split_threshold": 0.4951208331147019
-  },
-  {
-    "step": 46,
-    "n_clusters": 47,
-    "cost": 140.8452115528977,
-    "split_feature": "feat_060",
-    "split_threshold": 0.4473678424954414
-  },
-  {
-    "step": 47,
-    "n_clusters": 48,
-    "cost": 140.7433123865486,
-    "split_feature": "feat_065",
-    "split_threshold": -1.0473407804965973
-  },
-  {
-    "step": 48,
-    "n_clusters": 49,
-    "cost": 140.19563991039342,
-    "split_feature": "feat_065",
-    "split_threshold": -0.9997950493072977
-  },
-  {
-    "step": 49,
-    "n_clusters": 50,
-    "cost": 139.6089447404271,
-    "split_feature": "feat_027",
-    "split_threshold": 0.48797512042279156
-  },
-  {
-    "step": 50,
-    "n_clusters": 51,
-    "cost": 138.53125471540943,
-    "split_feature": "feat_065",
-    "split_threshold": -0.665147685578891
-  },
-  {
-    "step": 51,
-    "n_clusters": 52,
-    "cost": 137.60890485928655,
-    "split_feature": "feat_027",
-    "split_threshold": 1.1907708948972273
-  },
-  {
-    "step": 52,
-    "n_clusters": 53,
-    "cost": 137.5320417592776,
-    "split_feature": "feat_027",
-    "split_threshold": 0.1232184300465245
-  },
-  {
-    "step": 53,
-    "n_clusters": 54,
-    "cost": 137.35805665310914,
-    "split_feature": "feat_021",
-    "split_threshold": 0.7708854003220188
-  },
-  {
-    "step": 54,
-    "n_clusters": 55,
-    "cost": 137.28912147389696,
-    "split_feature": "feat_065",
-    "split_threshold": -1.3484633613605888
-  },
-  {
-    "step": 55,
-    "n_clusters": 56,
-    "cost": 137.24660617203372,
-    "split_feature": "feat_078",
-    "split_threshold": 0.19341573027931913
-  },
-  {
-    "step": 56,
-    "n_clusters": 57,
-    "cost": 129.09022732940738,
-    "split_feature": "feat_025",
-    "split_threshold": -0.26236691894579905
-  },
-  {
-    "step": 57,
-    "n_clusters": 58,
-    "cost": 128.01913250467155,
-    "split_feature": "feat_078",
-    "split_threshold": -0.4374251602255569
-  },
-  {
-    "step": 58,
-    "n_clusters": 59,
-    "cost": 127.48506790074885,
-    "split_feature": "feat_021",
-    "split_threshold": 0.5560721705154497
-  },
-  {
-    "step": 59,
-    "n_clusters": 60,
-    "cost": 127.25502232475564,
-    "split_feature": "feat_123",
-    "split_threshold": 0.7055087734241874
-  },
-  {
-    "step": 60,
-    "n_clusters": 61,
-    "cost": 127.07137528569949,
-    "split_feature": "feat_123",
-    "split_threshold": -0.3534674397840792
-  },
-  {
-    "step": 61,
-    "n_clusters": 62,
-    "cost": 126.87706738523747,
-    "split_feature": "feat_023",
-    "split_threshold": -1.416085802170695
-  },
-  {
-    "step": 62,
-    "n_clusters": 63,
-    "cost": 126.75147067381894,
-    "split_feature": "feat_089",
-    "split_threshold": -0.948501833847591
-  },
-  {
-    "step": 63,
-    "n_clusters": 64,
-    "cost": 126.64316160597765,
-    "split_feature": "feat_065",
-    "split_threshold": -1.0825208187103272
-  },
-  {
-    "step": 64,
-    "n_clusters": 65,
-    "cost": 125.76709144686527,
-    "split_feature": "feat_078",
-    "split_threshold": -0.27432615173106284
-  },
-  {
-    "step": 65,
-    "n_clusters": 66,
-    "cost": 125.06389603068365,
-    "split_feature": "feat_065",
-    "split_threshold": 0.0241396167239517
-  },
-  {
-    "step": 66,
-    "n_clusters": 67,
-    "cost": 124.840360953646,
-    "split_feature": "feat_029",
-    "split_threshold": -0.5868396959742721
-  },
-  {
-    "step": 67,
-    "n_clusters": 68,
-    "cost": 124.6560522392706,
-    "split_feature": "feat_025",
-    "split_threshold": -0.42041378894022535
-  },
-  {
-    "step": 68,
-    "n_clusters": 69,
-    "cost": 124.59331376378957,
-    "split_feature": "feat_123",
-    "split_threshold": 0.1089245722001912
-  },
-  {
-    "step": 69,
-    "n_clusters": 70,
-    "cost": 124.38410936260604,
-    "split_feature": "feat_020",
-    "split_threshold": 0.4832586741873195
-  },
-  {
-    "step": 70,
-    "n_clusters": 71,
-    "cost": 124.21857077907347,
-    "split_feature": "feat_025",
-    "split_threshold": -0.31147107010593217
+    "cost": 151.7340961167736,
+    "split_feature": "feat_042",
+    "split_threshold": 0.985081821680069
   }
 ]

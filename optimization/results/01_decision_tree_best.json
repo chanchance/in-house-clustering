@@ -1,11 +1,11 @@
 {
   "method": "decision_tree",
-  "best_cost": 125.18854870257951,
+  "best_cost": 189.70698583116476,
   "best_params": {
-    "max_leaf_nodes": 150,
-    "min_samples_leaf": 114
+    "max_leaf_nodes": 52,
+    "min_samples_leaf": 465
   },
-  "n_clusters": 150,
+  "n_clusters": 52,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 50.5899
+  "improvement_pct": -12.3118
 }

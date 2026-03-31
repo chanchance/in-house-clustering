@@ -176,7 +176,7 @@ def preprocess(
     print("[6/6] 완료 요약")
     print(f"      행 수: {len(y):,}  |  특징 수(선택): {len(selected_features)} / {len(feat_cols_clean)}")
     print(f"      기준선 4σ range %: {baseline_4sigma:.4f}%")
-    print(f"      cost_function: combined 4σ range after alignment  (min_count≥{cfg['min_count']})")
+    print(f"      cost_function: {cfg.get('cost_mode', 'combined')}  (min_count≥{cfg['min_count']})")
     print("=" * 60)
 
 

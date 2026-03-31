@@ -1,12 +1,12 @@
 {
   "method": "MiniBatchKMeans",
-  "best_cost": 84.31098189457256,
+  "best_cost": 81.5294554506391,
   "best_params": {
-    "n_clusters": 65,
-    "n_init": 8,
-    "batch_size": 5000
+    "n_clusters": 71,
+    "n_init": 7,
+    "batch_size": 20000
   },
-  "n_clusters": 65,
+  "n_clusters": 71,
   "baseline_4sigma": 168.91095550875897,
-  "improvement_pct": 66.7237
+  "improvement_pct": 51.7323
 }
